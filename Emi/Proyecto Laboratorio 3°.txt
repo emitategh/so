@@ -1,0 +1,76 @@
+Proyecto Laboratorio 3° - Sistemas Operativos
+	
+	1.
+		Proceso		Paso			X		Y		C 
+		-		0			10		2		0
+		ma#1		1			11		2		0
+				2			11		2		1 //Vuelve a 0 porque nadie lo esta esperando
+				3			11		0		0
+		ma#2		1			12		0		0
+				2			12		0		1 //Vuelve a 0 porque nadie lo esta esperando
+				3			12		-2		0
+		mb#1		4			12		-2		0
+				5			11		-2		0
+		mb#2		4			11		-2		0
+				5			10		-2		0
+		mb#3		4			10		-2		0
+				6			10		-2		0 //Como no tiene habilitado el semaforo queda esperando
+								        (WAIT)
+		mb#4		4			10		-2		0
+				6			10		-2		0 //Como no tiene habilitado el semaforo queda esperando
+							   	(WAIT)
+		ma#3		1			10+1	  	-2		0
+				2			11		-2		1 //Habilito el semaforo, entonces el primero que estaba
+													esperando a C se puede ejecutar
+						(SE RETOMA LA EJECUCION DE MB#3)
+		mb#3		6			11		-2		0
+				7			10		-4		0
+						 (TERMINO LA EJECUCION DE MB#3)
+
+						(SE RETOMA LA EJECUCION DE MA#3)           //Como no esta habilitado c mb#4 no puede continuar
+
+		ma#4		3 	  		10		-4		0 
+
+						 (TERMINO LA EJECUCION DE MA#3)
+
+		ma#5		1			10+1		-4		0
+
+				2			11		-4		1  //Habilita a C, entonces se continua con la ejecucion
+					    	(SE RETOMA LA EJECUCION DE MB#4) 		     de MB#4
+
+		mb#4		6			11		-4		0
+
+				7			10		-4		0
+						 (TERMINO LA EJECUCION DE MB#4) 		  // Retomo la ejecucion de ma#5
+		ma#5		3			10		-6		0
+
+	2(a) inicialmente hay 5 semaforos (s1,s2,s3,s4,s5), que sincronizaran los 5 hilos 
+	(h1,h2,h3,h4,h5) respectivamente.
+	s1<-1
+	s2<-0
+	s3<-0
+	s4<-0
+	s5<-0
+
+	en h1
+		espero a (s1)
+		imprimo el estado donde estoy
+		signal(s2) //Habilito al semaforo s2 
+		signal(s3) //Habilito al semaforo s3 
+		signal(s4) //Habilito al semaforo s4
+
+	//Esto permite libera los semaforos de h2,h3,h4 para que comienzen su ejecucion
+
+	en h2,h3,h4
+		espero a (sn) // Espero a que se habilite el sn para 
+		imprimo el estado donde estoy
+		signal(s5)
+
+	en h5 
+		espero a (s5) //Espero a que tenga 3 habilitaciones para poder ejecutar h5
+		espero a (s5)
+		espero a (s5)
+		imprimo el estado donde estoy
+		signal(s1)
+
+	Y garantizo que siga ciclando.
