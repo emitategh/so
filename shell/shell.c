@@ -46,17 +46,18 @@ void ejecutar(char* cmd,char* ar1,char* ar2){
 		getyx(stdscr,scr_y,scr_x);
 		printw("\n  "); // ?? con eso recupero el cursor a la posicion x= 0 en linea siguiente
 		refresh();
-		//printw("y: %i x: %i \n",scr_y,scr_x);
 		wmove(stdscr,scr_y,0);
 	}
 }
 
 void imprimir_ayuda(){
-	printw("----- Aliuuudaaaaaa ------\n");
+	printw("----- Aliuuudaaaaaa SO Mini Shell ------\n");
 	printw("La lista de comandos disponibles es:\n");
 	for (int i = 0; i < cant_comandos; i++){
 		printw("%i) %s\n",i,lista_comandos[i]);
 	}
+
+	printw("\n");
 }
 
 int has_extension(char * filename){
@@ -93,7 +94,7 @@ void buscar_comandos(){
 	    while ((file = readdir(cmd_dir)) != NULL)
 	    {
 	    	char * filename = file->d_name;
-	    	printw("filename %s\n",file->d_name);
+	    	//printw("filename %s\n",file->d_name);
 
 	    	if ((file->d_type == DT_REG) && (has_extension(filename) != 0) )
 			{
@@ -123,14 +124,22 @@ void del_char_from_str(char** string){
 	memmove(*string,aux,strlen(aux));
 }
 
+void auto_complete(){
+	
+}
+
 void manejar_buffer(){
 	filtered_buffer = (char*) malloc(sizeof(char*)*char_buffer_size);
 	int caracter;
+	int last_char_pos = 0;
 	while ((caracter = getch()) != '\n') {
-		//printw("Keycode: %d ", caracter);
+		printw("Keycode: %d ", caracter);
+		getyx(stdscr,scr_y,scr_x);
+		if (last_char_pos < scr_x){
+			last_char_pos = scr_x;
+		}
         switch (caracter) {
 	        case 127: //backspace
-	            getyx(stdscr,scr_y,scr_x);
 	            if ((scr_x - 1) >= strlen(shell_str)){
 		            if (wmove(stdscr,scr_y, scr_x - 1) != ERR) {
 		        		delch();
@@ -140,6 +149,19 @@ void manejar_buffer(){
 		            }
 	            }
 	            break;
+	        /*case 260 :
+	        	if ((scr_x - 1) >= strlen(shell_str)){
+		        	wmove(stdscr,scr_y,scr_x-1);
+		        }
+	        	break;
+	        case 261:
+	        	if (scr_x < last_char_pos){
+	        		wmove(stdscr,scr_y,scr_x+1);
+	        	}
+	        	break;*/
+	        case 9: //tab
+	        	auto_complete();
+	        	break;
 	        default:
 
 	            if (filtrar_entrada(caracter)){
