@@ -1,8 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <fcntl.h>
+ #include <sys/stat.h>
+       #include <sys/types.h>
 
 /** asumo como máximo 3 argumentos (comando + 2 args)
 	ya que ningún comando aceptado por la shell necesita más de 2 argumentos
