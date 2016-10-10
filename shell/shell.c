@@ -14,7 +14,7 @@
 #endif 
 
 DIR * cmd_dir;
-char* lista_comandos;
+char** lista_comandos;
 int cant_comandos = 0;
 char* directorio_comandos = "./comandos";
 WINDOW *my_win;
@@ -23,6 +23,10 @@ int scr_y = 0;
 char* shell_str = "[so_shell]$ ";
 int char_buffer_size = 100;
 char* filtered_buffer;
+
+void ini_array(char* array){
+
+}
 
 
 void ejecutar(char* cmd,char* ar1,char* ar2){
@@ -39,18 +43,20 @@ void ejecutar(char* cmd,char* ar1,char* ar2){
         exit(127); /* only if execv fails */
 	}else{
 		wait(NULL);
-		
+		getyx(stdscr,scr_y,scr_x);
+		printw("\n  "); // ?? con eso recupero el cursor a la posicion x= 0 en linea siguiente
+		refresh();
+		//printw("y: %i x: %i \n",scr_y,scr_x);
+		wmove(stdscr,scr_y,0);
 	}
 }
 
 void imprimir_ayuda(){
-	addstr("----- Aliuuudaaaaaa ------\n");
-	addstr("La lista de comandos disponibles es:\n");
+	printw("----- Aliuuudaaaaaa ------\n");
+	printw("La lista de comandos disponibles es:\n");
 	for (int i = 0; i < cant_comandos; i++){
-		printw("%i) %s\n",i,&lista_comandos[i]);
+		printw("%i) %s\n",i,lista_comandos[i]);
 	}
-	
-	refresh ();
 }
 
 int has_extension(char * filename){
@@ -81,14 +87,18 @@ void buscar_comandos(){
 	   	
     	rewinddir(cmd_dir);
 		int i = 0;
+		lista_comandos = (char**) malloc(sizeof(char*)*cant_comandos);
 	    
-	    lista_comandos = malloc(cant_comandos*sizeof(char*));
+	    	
 	    while ((file = readdir(cmd_dir)) != NULL)
 	    {
 	    	char * filename = file->d_name;
+	    	printw("filename %s\n",file->d_name);
+
 	    	if ((file->d_type == DT_REG) && (has_extension(filename) != 0) )
 			{
-				strcpy(&lista_comandos[i], filename);
+	    		lista_comandos[i] = (char*) malloc(sizeof(char)*strlen(filename));
+				strcpy(lista_comandos[i], filename);
 				i++;
 			}
 	    }
@@ -126,7 +136,7 @@ void manejar_buffer(){
 		        		delch();
 		        		del_char_from_str(&filtered_buffer);
 		            }else{
-		            	printf("no se pudo borrar\n");
+		            	printw("no se pudo borrar\n");
 		            }
 	            }
 	            break;
@@ -157,24 +167,26 @@ int main(int argc, char *argv[]){
 	int iguales = -1;
 	char caracter;
 	cmd_dir = opendir(directorio_comandos);
+	initscr();
+	noecho();
 	if (cmd_dir)
   	{
 	  	buscar_comandos();
 		if (cant_comandos == 0){
-			printf("No hay comandos disponibles para ejecutar\n");
+			printw("No hay comandos disponibles para ejecutar\n");
 		}else{
-			initscr();
-			noecho();
+			
 			//cbreak();
 			keypad(stdscr, TRUE);
 			while(!termine){
 				getyx(stdscr,scr_y,scr_x);
-				addstr(shell_str);
-				//move(scr_y+1,0);
-				refresh ();
-				//caracter = getch();
+				//printw("");
+				//printw("y: %i x: %i \n",scr_y,scr_x);
+				//wmove(stdscr,scr_y+1,0);
+				printw(shell_str);
+				refresh();
 				manejar_buffer();
-				refresh ();
+
 				int i = 0;
 
 				while (filtered_buffer[i] != '\0') {
@@ -199,13 +211,14 @@ int main(int argc, char *argv[]){
 				
 			    //printw("comando : %s\n",comando);
 				
-			    addstr("\n");
-			    refresh ();
+			    printw("\n");
 				strncat(comando,"\0",1);
 				strncat(arg1,"\0",1);
 				strncat(arg2,"\0",1);
-				printw("comando: %s\n",comando);
-				refresh ();
+
+				getyx(stdscr,scr_y,scr_x);
+				move(scr_y,0);
+				refresh();
 
 				fflush(stdin);
 				if (strlen(comando) > 0){
@@ -217,30 +230,30 @@ int main(int argc, char *argv[]){
 						
 					
 						espacio=0;
-						/*printf("Comando leido %s \n",comando);
-						printf("Tamaño comando leido por consola %i\n", strlen(comando));
+						/*printw("Comando leido %s \n",comando);
+						printw("Tamaño comando leido por consola %i\n", strlen(comando));
 						*/// Comparo con todos los comandos de la lista para saber cual es
 						
 						int i=0;
 						int iguales = -1;
 						while((iguales != 0) && (i <= cant_comandos - 1)){
-							/*printf("Tamaño comando leido de lista %i\n", strlen(&lista_comandos[i]));
-							printf("Comparando %s con %s\n",comando,&lista_comandos[i]);
+							/*printw("Tamaño comando leido de lista %i\n", strlen(&lista_comandos[i]));
+							printw("Comparando %s con %s\n",comando,&lista_comandos[i]);
 							*/
-							iguales = strcmp(comando,&lista_comandos[i]);
+							iguales = strcmp(comando,lista_comandos[i]);
 							
 							i++;
 						};
-						/*printf("Resultado de comparacion: %i\n",iguales);
-						printf("i es igual a %i\n",i);
+						/*printw("Resultado de comparacion: %i\n",iguales);
+						printw("i es igual a %i\n",i);
 						*/
 						i--;
 						if(iguales == 0){
 							ejecutar(comando,arg1,arg2);
 							//move(scr_y+1,0);
 						}else{
-							addstr("Comando no encontrado\n");
-							refresh ();
+							printw("Comando no encontrado\n");
+							
 						}
 					}
 				}
@@ -253,7 +266,7 @@ int main(int argc, char *argv[]){
 		}
 		closedir(cmd_dir);
 	}else{
-	  addstr("No se pudo abrir el directorio de comandos\n");
+	  printw("No se pudo abrir el directorio de comandos\n");
 	}
 	
 	endwin();
