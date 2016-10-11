@@ -1,8 +1,7 @@
 
 #include <windows.h>
 #include <stdio.h>
-
-
+#include <winbase.h>
 
 HANDLE scocinero,scocina,sfuente,scomensal,scomer;
 
@@ -11,10 +10,10 @@ void* cocineroA(){
 		
 		WaitForSingleObject( 
             scocinero,   // handle to semaphore
-            0L);           // zero-second time-out interval
+            INFINITE);           // zero-second time-out interval
 		WaitForSingleObject( 
             scocina,   // handle to semaphore
-            0L);           // zero-second time-out interval
+            INFINITE);           // zero-second time-out interval
 		for(int j=0;j<100;j++){
 			ReleaseSemaphore(sfuente,
 				1,		// cantidad que se aumenta
@@ -35,10 +34,10 @@ void* cocineroB(){
 		
 		WaitForSingleObject( 
             scocinero,   // handle to semaphore
-            0L);           // zero-second time-out interval
+            INFINITE);           // zero-second time-out interval
 		WaitForSingleObject( 
             scocina,   // handle to semaphore
-            0L);           // zero-second time-out interval
+            INFINITE);           // zero-second time-out interval
 		for(int j=0;j<100;j++){
 			ReleaseSemaphore(sfuente,
 				1,		// cantidad que se aumenta
@@ -70,21 +69,24 @@ void* comensalA(){
             sfuente,   // handle to semaphore
             0L);           // zero-second time-out interval
 
-		switch (dwWaitResult) 
+		printf("Resultado 0x%08x\n", dwWaitFuente);  // gives 0x00000007
+		printf("Timeout 0x%08x\n", WAIT_TIMEOUT);  // gives 0x00000007
+		printf("Wait Obj 0x%08x\n", WAIT_OBJECT_0);  // gives 0x00000007
+		switch (dwWaitFuente) 
         { 
             // The semaphore object was signaled.
             case WAIT_OBJECT_0: 
-            printf("Juan: Me estoy sirviendo\n");
-            ReleaseSemaphore(scomensal,
-			1,			// cantidad que se aumenta
-			NULL);
-			ReleaseSemaphore(sfuente,
-			1,			// cantidad que se aumenta
-			NULL);
-			for(int j=0;j<92013;j++){
+	            printf("Juan: Me estoy sirviendo\n");
+	            ReleaseSemaphore(scomensal,
+				1,			// cantidad que se aumenta
+				NULL);
+				ReleaseSemaphore(sfuente,
+				1,			// cantidad que se aumenta
+				NULL);
+				for(int j=0;j<92013;j++){
 
-			};
-			printf("Juan: Comiendo\n");
+				};
+				printf("Juan: Comiendo\n");
 
             break;
 
@@ -104,6 +106,8 @@ void* comensalA(){
 					NULL);
                 break; 
 		};
+
+
 	};
 }
 void* comensalB(){
@@ -121,21 +125,21 @@ void* comensalB(){
             sfuente,   // handle to semaphore
             0L);           // zero-second time-out interval
 
-		switch (dwWaitResult) 
+		switch (dwWaitFuente) 
         { 
             // The semaphore object was signaled.
             case WAIT_OBJECT_0: 
-            printf("Roberto: Me estoy sirviendo\n");
-            ReleaseSemaphore(scomensal,
-			1,			// cantidad que se aumenta
-			NULL);
-			ReleaseSemaphore(sfuente,
-			1,			// cantidad que se aumenta
-			NULL);
-			for(int j=0;j<92013;j++){
+	            printf("Roberto: Me estoy sirviendo\n");
+	            ReleaseSemaphore(scomensal,
+				1,			// cantidad que se aumenta
+				NULL);
+				ReleaseSemaphore(sfuente,
+				1,			// cantidad que se aumenta
+				NULL);
+				for(int j=0;j<92013;j++){
 
-			};
-			printf("Roberto: Comiendo\n");
+				};
+				printf("Roberto: Comiendo\n");
 
             break;
 
@@ -172,21 +176,21 @@ void* comensalC(){
             sfuente,   // handle to semaphore
             0L);           // zero-second time-out interval
 
-		switch (dwWaitResult) 
+		switch (dwWaitFuente) 
         { 
             // The semaphore object was signaled.
             case WAIT_OBJECT_0: 
-            printf("Gaston: Me estoy sirviendo\n");
-            ReleaseSemaphore(scomensal,
-			1,			// cantidad que se aumenta
-			NULL);
-			ReleaseSemaphore(sfuente,
-			1,			// cantidad que se aumenta
-			NULL);
-			for(int j=0;j<92013;j++){
+	            printf("Gaston: Me estoy sirviendo\n");
+	            ReleaseSemaphore(scomensal,
+				1,			// cantidad que se aumenta
+				NULL);
+				ReleaseSemaphore(sfuente,
+				1,			// cantidad que se aumenta
+				NULL);
+				for(int j=0;j<92013;j++){
 
-			};
-			printf("Gaston: Comiendo\n");
+				};
+				printf("Gaston: Comiendo\n");
 
             break;
 
@@ -223,21 +227,21 @@ void* comensalD(){
             sfuente,   // handle to semaphore
             0L);           // zero-second time-out interval
 
-		switch (dwWaitResult) 
+		switch (dwWaitFuente) 
         { 
             // The semaphore object was signaled.
             case WAIT_OBJECT_0: 
-            printf("Cecilia: Me estoy sirviendo\n");
-            ReleaseSemaphore(scomensal,
-			1,			// cantidad que se aumenta
-			NULL);
-			ReleaseSemaphore(sfuente,
-			1,			// cantidad que se aumenta
-			NULL);
-			for(int j=0;j<92013;j++){
+	            printf("Cecilia: Me estoy sirviendo\n");
+	            ReleaseSemaphore(scomensal,
+				1,			// cantidad que se aumenta
+				NULL);
+				ReleaseSemaphore(sfuente,
+				1,			// cantidad que se aumenta
+				NULL);
+				for(int j=0;j<92013;j++){
 
-			};
-			printf("Cecilia: Comiendo\n");
+				};
+				printf("Cecilia: Comiendo\n");
 
             break;
 
@@ -274,21 +278,21 @@ void* comensalE(){
             sfuente,   // handle to semaphore
             0L);           // zero-second time-out interval
 
-		switch (dwWaitResult) 
+		switch (dwWaitFuente) 
         { 
             // The semaphore object was signaled.
             case WAIT_OBJECT_0: 
-            printf("Wilson: Me estoy sirviendo\n");
-            ReleaseSemaphore(scomensal,
-			1,			// cantidad que se aumenta
-			NULL);
-			ReleaseSemaphore(sfuente,
-			1,			// cantidad que se aumenta
-			NULL);
-			for(int j=0;j<92013;j++){
+	            printf("Wilson: Me estoy sirviendo\n");
+	            ReleaseSemaphore(scomensal,
+				1,			// cantidad que se aumenta
+				NULL);
+				ReleaseSemaphore(sfuente,
+				1,			// cantidad que se aumenta
+				NULL);
+				for(int j=0;j<92013;j++){
 
-			};
-			printf("Wilson: Comiendo\n");
+				};
+				printf("Wilson: Comiendo\n");
 
             break;
 
@@ -325,21 +329,21 @@ void* comensalF(){
             sfuente,   // handle to semaphore
             0L);           // zero-second time-out interval
 
-		switch (dwWaitResult) 
+		switch (dwWaitFuente) 
         { 
             // The semaphore object was signaled.
             case WAIT_OBJECT_0: 
-            printf("Cristian: Me estoy sirviendo\n");
-            ReleaseSemaphore(scomensal,
-			1,			// cantidad que se aumenta
-			NULL);
-			ReleaseSemaphore(sfuente,
-			1,			// cantidad que se aumenta
-			NULL);
-			for(int j=0;j<92013;j++){
+	            printf("Cristian: Me estoy sirviendo\n");
+	            ReleaseSemaphore(scomensal,
+				1,			// cantidad que se aumenta
+				NULL);
+				ReleaseSemaphore(sfuente,
+				1,			// cantidad que se aumenta
+				NULL);
+				for(int j=0;j<92013;j++){
 
-			};
-			printf("Cristian: Comiendo\n");
+				};
+				printf("Cristian: Comiendo\n");
 
             break;
 
@@ -376,21 +380,21 @@ void* comensalG(){
             sfuente,   // handle to semaphore
             0L);           // zero-second time-out interval
 
-		switch (dwWaitResult) 
+		switch (dwWaitFuente) 
         { 
             // The semaphore object was signaled.
             case WAIT_OBJECT_0: 
-            printf("Motorola: Me estoy sirviendo\n");
-            ReleaseSemaphore(scomensal,
-			1,			// cantidad que se aumenta
-			NULL);
-			ReleaseSemaphore(sfuente,
-			1,			// cantidad que se aumenta
-			NULL);
-			for(int j=0;j<92013;j++){
+	            printf("Motorola: Me estoy sirviendo\n");
+	            ReleaseSemaphore(scomensal,
+				1,			// cantidad que se aumenta
+				NULL);
+				ReleaseSemaphore(sfuente,
+				1,			// cantidad que se aumenta
+				NULL);
+				for(int j=0;j<92013;j++){
 
-			};
-			printf("Motorola: Comiendo\n");
+				};
+				printf("Motorola: Comiendo\n");
 
             break;
 
@@ -412,7 +416,7 @@ void* comensalG(){
 		};
 	};
 }
-void main(){
+int main(){
 	DWORD h1,h2,h3,h4,h5,h6,h7,h8,h9;
 	
 	scocinero = CreateSemaphore( 
@@ -444,78 +448,78 @@ void main(){
 	HANDLE aThread[9];
 
 
-	aThread[0]=CreateThread( 
+	aThread[0]=CreateThread(
                      NULL,       // default security attributes
                      0,          // default stack size
                      (LPTHREAD_START_ROUTINE) cocineroA, 
                      NULL,       // no thread function arguments
                      0,          // default creation flags
                      &h1); // receive thread identifier
-	aThread[1]=CreateThread( 
+	/*aThread[1]=CreateThread(
                      NULL,       // default security attributes
                      0,          // default stack size
                      (LPTHREAD_START_ROUTINE) cocineroB, 
                      NULL,       // no thread function arguments
                      0,          // default creation flags
-                     &h2); // receive thread identifier
-	aThread[2]=CreateThread( 
+                     &h2); // receive thread identifier*/
+	/*aThread[2]=CreateThread(
                      NULL,       // default security attributes
                      0,          // default stack size
                      (LPTHREAD_START_ROUTINE) comensalA, 
                      NULL,       // no thread function arguments
                      0,          // default creation flags
-                     &h3); // receive thread identifier
+                     &h3); // receive thread identifier*/
 
-	aThread[3]=CreateThread( 
+	/*aThread[3]=CreateThread(
                      NULL,       // default security attributes
                      0,          // default stack size
                      (LPTHREAD_START_ROUTINE) comensalB, 
                      NULL,       // no thread function arguments
                      0,          // default creation flags
-                     &h4); // receive thread identifier
-	aThread[4]=CreateThread( 
+                     &h4); // receive thread identifier*/
+	/*aThread[4]=CreateThread(
                      NULL,       // default security attributes
                      0,          // default stack size
                      (LPTHREAD_START_ROUTINE) comensalC, 
                      NULL,       // no thread function arguments
                      0,          // default creation flags
-                     &h5); // receive thread identifier
-	aThread[5]=CreateThread( 
+                     &h5); // receive thread identifier*/
+	/*aThread[5]=CreateThread(
                      NULL,       // default security attributes
                      0,          // default stack size
                      (LPTHREAD_START_ROUTINE) comensalD, 
                      NULL,       // no thread function arguments
                      0,          // default creation flags
-                     &h6); // receive thread identifier
-	aThread[6]=CreateThread( 
+                     &h6); // receive thread identifier*/
+	/*aThread[6]=CreateThread(
                      NULL,       // default security attributes
                      0,          // default stack size
                      (LPTHREAD_START_ROUTINE) comensalE, 
                      NULL,       // no thread function arguments
                      0,          // default creation flags
-                     &h7); // receive thread identifier
-	aThread[7]=CreateThread( 
+                     &h7); // receive thread identifier*/
+	/*aThread[7]=CreateThread(
                      NULL,       // default security attributes
                      0,          // default stack size
                      (LPTHREAD_START_ROUTINE) comensalF, 
                      NULL,       // no thread function arguments
                      0,          // default creation flags
-                     &h8); // receive thread identifier
-	aThread[8]=CreateThread( 
+                     &h8); // receive thread identifier*/
+	/*aThread[8]=CreateThread(
                      NULL,       // default security attributes
                      0,          // default stack size
                      (LPTHREAD_START_ROUTINE) comensalG, 
                      NULL,       // no thread function arguments
                      0,          // default creation flags
-                     &h9); // receive thread identifier
+                     &h9); // receive thread identifier*/
 	
 	// Wait for all threads to terminate
 
-    WaitForMultipleObjects(9, aThread, TRUE, INFINITE);
+    WaitForMultipleObjects(1, aThread, TRUE, INFINITE);
 
     // Close thread and semaphore handles
 
-    for( int i=0; i < 9; i++ )
+    for( int i=0; i < 1; i++ )
         CloseHandle(aThread[i]);
 
     //CloseHandle(ghSemaphore);
