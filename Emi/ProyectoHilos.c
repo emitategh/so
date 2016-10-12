@@ -2,32 +2,47 @@
 #include<pthread.h>
 
 void* tareaA(){
-	for(int i=0;i<10000;i++)
-		printf("TAREA: A\n");
+	int id;
+//	for(int i=0;i<10000;i++){
+		id= pthread_self();
+		printf("TAREA: A --- ID: %i\n",id);
+//	};
 	pthread_exit(0);
 }
 
 void* tareaB(){
-	for(int i=0;i<10000;i++)
-		printf("TAREA: B\n");
+	int id;
+//	for(int i=0;i<10000;i++){
+		id= pthread_self();
+		printf("TAREA: B --- ID: %i\n",id);
+//	};
 	pthread_exit(0);	
 }
 
 void* tareaC(){
-	for(int i=0;i<10000;i++)
-		printf("TAREA: C\n");
+	int id;
+//	for(int i=0;i<10000;i++){
+		id= pthread_self();
+		printf("TAREA: C --- ID: %i\n",id);
+//	};
 	pthread_exit(0);
 }
 
 void* tareaD(){
-	for(int i=0;i<10000;i++)
-		printf("TAREA: D\n");
+	int id;
+	//for(int i=0;i<10000;i++){
+		id= pthread_self();
+		printf("TAREA: D --- ID: %i\n",id);
+//	};
 	pthread_exit(0);
 }
 
 void* tareaE(){
-	for(int i=0;i<4;i++)
-		printf("TAREA: E\n");
+	int id;
+	//for(int i=0;i<10000;i++){
+		id= pthread_self();
+		printf("TAREA: E --- ID: %i\n",id);
+	//};
 	pthread_exit(0);
 }
 
