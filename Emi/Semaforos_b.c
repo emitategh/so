@@ -126,4 +126,5 @@ void main(){
 	sem_destroy(&sc);
 	sem_destroy(&sd);
 	sem_destroy(&se);
+	sem_destroy(&scerrar);
 }
