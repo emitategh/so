@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <string.h>
-#include <sys/wait.h>
 #include <signal.h>
 
 
@@ -25,63 +24,96 @@ void intHandler(int sig) {
 
 
 
-void ejecutar(char* cmd,char* ar1,char* ar2){
-	//int link[2];
-	char child_input_buffer[4096];
-	int args_index = 1;
-	// pipes http://tldp.org/LDP/lpg/node11.html
-	//if (pipe(link)==-1)
-    //	exit(EXIT_FAILURE);
-    	//die("pipe");
+int llamada(char *comm, char *a1, char *a2, char **MC) {
+	int i,leng,ret,error;
+	
+	for (i = 0; i < 7;i++){
+		leng = strlen((MC[i])) ;
+  		int ret = strncmp(comm, MC[i], leng);
+		if (ret == 0) {
+			switch (i){
+				case 0 : // mkdir
+				{	
+					if(a1[0] != '\n' || a1[0] != '\0') {
 
-	int pid = fork();	
-	if (pid == 0){
+						BOOL  error=CreateDirectory(
+						  _In_     LPCTSTR               a1,
+						  _In_opt_ LPSECURITY_ATTRIBUTES NULL
+						);
+				//	error = mkdir(a1, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+						if (error < 0)
+							printf ("ERROR\n");
+					}
+					else
+						printf("%s necesita 1 argumento",comm);
+					return 1;
+				}
+				case 1: //rmdir
+				{
+					if(a1[0] != '\n' || a1[0] != '\0') {
+						BOOL  error=RemoveDirectory(
+							  _In_ LPCTSTR a1
+							);
 
-		char * cmd_exec = (char * ) malloc(sizeof(char*)*100);
-		strcat(cmd_exec,directorio_comandos);
-		strcat(cmd_exec,PATH_SEPARATOR);
-		strcat(cmd_exec,cmd);
 
-		char* args_cmd[3];
+						//error = rmdir (a1);
+						if (error < 0)
+							printf ("ERROR\n");
+					}
+					else
+						printf("%s necesita 1 argumento",comm);
+					return 1;
+				}
+				case 2: // rename
+				{
+	 				if(a1[0] != '\n' || a1[0] != '\0' || a2[0] != '\n' || a2[0] != '\0') {
+	 					BOOL error= MoveFile(
+								  _In_ LPCTSTR a1,
+								  _In_ LPCTSTR a2
+								);
+						//error = rename (a1,a2);
+						if (error < 0)
+							printf ("ERROR\n");
+					}
+					else
+						printf("%s necesita 2 argumentos",comm);
+	    			return 1;
+				}
+				case 3: // copy
+				{
+ 	 				if(a1[0] != '\n' || a1[0] != '\0' || a2[0] != '\n' || a2[0] != '\0') {
+ 	 					BOOL  CopyFile(
+						  _In_ LPCTSTR a1,
+						  _In_ LPCTSTR a2,
+						  _In_ BOOL    NULL
+						);
 
-		args_cmd[0] = malloc(sizeof(strlen(cmd)));
-		args_cmd[1] = malloc(sizeof(strlen(ar1)));
-		args_cmd[2] = malloc(sizeof(strlen(ar2)));
-
-		args_cmd[0] = cmd;
-		if (strlen(ar1) > 0){
-			args_cmd[args_index] = ar1;
-			args_index++;
+						//error = copy (a1,a2);
+						if (error < 0)
+							printf ("ERROR\n");
+					}
+					else
+						printf("%s necesita 2 argumentos",comm);
+	    			return 1;
+				}
+				case 4: // time
+				{
+	 				time_t seconds;
+	 				seconds = time(NULL);
+	 				printf("Horas desde el 1 de Enero de 1970 = %ld\n", seconds/3600);
+					return 1;
+				}	
+	 			case 5: // help
+				{
+	 				imprimirAyuda();
+					return 1;
+				}
+  				case 6: // exit
+				{
+	 				return 0;
+				}
+			}
 		}
-
-		if (strlen(ar2) > 0){
-			args_cmd[args_index] = ar2;
-			args_index++;
-		}
-		args_cmd[args_index++] = (char *)0;
-		
-		
-	    //close(link[0]); // 0 reading
-	    //close(link[1]);	// 1 writing
-	//	dup2 (0,link[0]);// STDOUT_FILENO); // connect pipe from execl to stdin
-		//execl(cmd_exec,cmd,args_cmd,(char *)0);
-
-
-		execv(cmd_exec,args_cmd);
-        exit(127); /* only if execv fails */
-	}else{
-		
-		/*close(link[1]); // si queremos recibir datos del hijo, entonces tenemos q cerrar 1
-		int nbytes = read(link[0], child_input_buffer, sizeof(child_input_buffer));
-		printf("Leidos %i bytes\n", nbytes);
-    	printf("Output: (%.*s)\n", nbytes, child_input_buffer);
-		
-		/*while( scanf( "%s", child_input_buffer ) != EOF )
-        {
-	    	printf("%s", child_input_buffer);
-	 	}*/
-		wait(NULL);
-		printf("\n");
 	}
 }
 
@@ -105,56 +137,6 @@ void imprimir_ayuda(){
 	printf("\n");
 }
 
-
-int has_extension(char * filename){
-	int i = 0;
-	while(filename[i] != '\0'){
-		if (filename[i] == '.'){
-			return 0;
-		}
-		i++;
-	}
-	return 1;
-}
-
-void buscar_comandos(){
-  	struct dirent *file;
-  
-	while ((file = readdir(cmd_dir)) != NULL)
-    {
-    	char * filename = file->d_name;
-    	
-    	if ((file->d_type == DT_REG) && (has_extension(filename) != 0) )
-		{
-			cant_comandos++;
-		}
-
-    }
-
-
-    if (cant_comandos > 0){
-	   	
-    	rewinddir(cmd_dir);
-		int i = 0;
-		lista_comandos = (char**) malloc(sizeof(char*)*cant_comandos);
-	    
-	    	
-	    while ((file = readdir(cmd_dir)) != NULL)
-	    {
-	    	char * filename = file->d_name;
-	    	//printw("filename %s\n",file->d_name);
-
-	    	if ((file->d_type == DT_REG) && (has_extension(filename) != 0) )
-			{
-	    		lista_comandos[i] = (char*) malloc(sizeof(char)*strlen(filename));
-				strcpy(lista_comandos[i], filename);
-				i++;
-			}
-	    }
-    }
-}
-
-
 int filtrar_entrada(char caracter){
 	if ( caracter == '\\' || caracter == '.' || caracter == '/' || (caracter >= '0' && caracter <= '9') || (caracter >= 'a' && caracter <= 'z' ) || (caracter >= 'A' && caracter <= 'Z' || caracter == ' ')){
 		return 1;
@@ -174,94 +156,99 @@ int main(int argc, char *argv[]){
 	int iguales = -1;
 	int espacio_activo = -1;
 
-	//signal(SIGINT, intHandler);
+	// comandos aceptados
+	char *cmd1 = "mkdir";
+	char *cmd2 = "rmdir";
+	char *cmd3 = "rename";
+	char *cmd4 = "copy";
+	char *cmd5 = "time";
+	char *cmd6 = "help";
+	char *cmd7 = "exit";
 
-	cmd_dir = opendir(directorio_comandos);
-	if (cmd_dir)
-  	{
-	  	buscar_comandos();
-		if (cant_comandos == 0){
-			printf("No hay comandos disponibles para ejecutar\n");
-		}else{
-			while(!termine){
-				espacio = 0;
-				espacio_activo = -1;
-				iguales = -1;
+	strncat(cmd1, "\0", 1);
+	strncat(cmd2, "\0", 1);
+	strncat(cmd3, "\0", 1);
+	strncat(cmd4, "\0", 1);
+	strncat(cmd5, "\0", 1);
+	strncat(cmd6, "\0", 1);
+	strncat(cmd7, "\0", 1);
 
-				printf("[so_shell]$ ");
-				caracter = getchar();
+	char *MisComandos[7] = {cmd1,cmd2,cmd3,cmd4,cmd5,cmd6,cmd7};
 
-				if (filtrar_entrada(caracter)){
-					while( caracter != '\n'){
+	while(!termine){
+			espacio = 0;
+			espacio_activo = -1;
+			iguales = -1;
 
-						if (filtrar_entrada(caracter)){
-							if(caracter == (unsigned char) ' ' || caracter == (unsigned char)'\t'){
-								if (espacio_activo == 0){
-									espacio++;
-								}
-								espacio_activo = 1;
-							}else {
-								espacio_activo = 0;
-								if(espacio==0)
-									strncat(comando,&caracter,1);
-								else if(espacio==1)
-									strncat(arg1,&caracter,1);
-								else 
-									strncat(arg2,&caracter,1);
-								
+			printf("[so_shell]$ ");
+			caracter = getchar();
+
+			if (filtrar_entrada(caracter)){
+				while( caracter != '\n'){
+
+					if (filtrar_entrada(caracter)){
+						if(caracter == (unsigned char) ' ' || caracter == (unsigned char)'\t'){
+							if (espacio_activo == 0){
+								espacio++;
 							}
+							espacio_activo = 1;
+						}else {
+							espacio_activo = 0;
+							if(espacio==0)
+								strncat(comando,&caracter,1);
+							else if(espacio==1)
+								strncat(arg1,&caracter,1);
+							else 
+								strncat(arg2,&caracter,1);
+							
 						}
-						caracter = getchar();
-					};
+					}
+					caracter = getchar();
+				};
 
-					//strncat(comando,"\0",1);
-					//strncat(arg1,"\0",1);
-					//strncat(arg2,"\0",1);
+				//strncat(comando,"\0",1);
+				//strncat(arg1,"\0",1);
+				//strncat(arg2,"\0",1);
 
-					fflush(stdin);
-					if (strlen(comando) > 0){
-						if(strcmp(comando,"help") == 0){
-							imprimir_ayuda();
-						}else if(strcmp(comando,"exit") == 0){
-							termine = 1;
-						}else{
-							
-							/*printf("Comando leido %s \n",comando);
-							printf("Tamaño comando leido por consola %i\n", strlen(comando));
-							*/// Comparo con todos los comandos de la lista para saber cual es
-							
-							int i=0;
-							int iguales = -1;
-							while((iguales != 0) && (i <= cant_comandos - 1)){
-								/*printf("Tamaño comando leido de lista %i\n", strlen(&lista_comandos[i]));
-								printf("Comparando %s con %s\n",comando,&lista_comandos[i]);
-								*/
-								iguales = strcmp(comando,lista_comandos[i]);
-								
-								i++;
-							};
-							/*printf("Resultado de comparacion: %i\n",iguales);
-							printf("i es igual a %i\n",i);
+				fflush(stdin);
+				if (strlen(comando) > 0){
+					if(strcmp(comando,"help") == 0){
+						imprimir_ayuda();
+					}else if(strcmp(comando,"exit") == 0){
+						termine = 1;
+					}else{
+						
+						/*printf("Comando leido %s \n",comando);
+						printf("Tamaño comando leido por consola %i\n", strlen(comando));
+						*/// Comparo con todos los comandos de la lista para saber cual es
+						
+						int i=0;
+						int iguales = -1;
+						while((iguales != 0) && (i <= cant_comandos - 1)){
+							/*printf("Tamaño comando leido de lista %i\n", strlen(&lista_comandos[i]));
+							printf("Comparando %s con %s\n",comando,&lista_comandos[i]);
 							*/
-							i--;
+							iguales = strcmp(comando,lista_comandos[i]);
+							
+							i++;
+						};
+						/*printf("Resultado de comparacion: %i\n",iguales);
+						printf("i es igual a %i\n",i);
+						*/
+						i--;
 
-							if(iguales == 0){
-								ejecutar(comando,arg1,arg2);
-							}else{
-								printf("Comando no encontrado\n");
-							}
+						if(iguales == 0){
+							ejecutar(comando,arg1,arg2,MisComandos);
+						}else{
+							printf("Comando no encontrado\n");
 						}
 					}
 				}
-				comando= (char*) malloc(sizeof(char*)*100); //comando
-				arg1=(char*) malloc(sizeof(char*)*100);//argumentos del comando
-				arg2=(char*) malloc(sizeof(char*)*100);//argumentos del comando
+			}
+			comando= (char*) malloc(sizeof(char*)*100); //comando
+			arg1=(char*) malloc(sizeof(char*)*100);//argumentos del comando
+			arg2=(char*) malloc(sizeof(char*)*100);//argumentos del comando
 
-			}	
-		}
-		closedir(cmd_dir);
-	}else{
-	  printf("No se pudo abrir el directorio de comandos\n");
-	}
-	
+		}	
 }
+
