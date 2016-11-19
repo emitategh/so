@@ -6,18 +6,9 @@ sem_t sab,sc,sd,se,sf,scerrar;
 
 void* tareaA(){
 	
-	int cant = 0;
 	while(1){
-		if (cant == 20){
-			sem_post(&scerrar);
-			sem_post(&sab);
-			pthread_exit(0);
-		}	
-
-		cant++;
-
 		sem_wait(&sab);
-		printf("A  \n");
+		printf("A - ");
 		sem_post(&sc);
 	};
 	pthread_exit(0);
@@ -26,31 +17,18 @@ void* tareaA(){
 void* tareaB(){
 	
 	while(1){
-
-		int close = sem_trywait(&scerrar);
-		if (close == 0){
-			sem_post(&scerrar);	
-			pthread_exit(0);		
-		}
 		sem_wait(&sab);
-		printf("B  \n");
+		printf("B - ");
 		sem_post(&sc);
-		
 	};
-	
+	pthread_exit(0);
 }
 
 void* tareaC(){
 	
 	while(1){
-		int close = sem_trywait(&scerrar);
-		if (close == 0){
-			sem_post(&scerrar);	
-			pthread_exit(0);		
-		}
-
 		sem_wait(&sc);
-		printf("C \n");
+		printf("C - ");
 		sem_post(&sd);
 		
 	};
@@ -60,14 +38,8 @@ void* tareaC(){
 void* tareaD(){
 	
 	while(1){
-		int close = sem_trywait(&scerrar);
-		if (close == 0){
-			sem_post(&scerrar);	
-			pthread_exit(0);		
-		}
-		/*Espero a que  termine el anterior*/
 		sem_wait(&sd);
-		printf("D \n");
+		printf("D - ");
 		sem_post(&se);
 		
 	};
@@ -78,12 +50,6 @@ void* tareaE(){
 	
 	
 	while(1){
-		int close = sem_trywait(&scerrar);
-		if (close == 0){
-			sem_post(&scerrar);	
-			pthread_exit(0);		
-		}
-		/*Espero a que  termine el anterior*/
 		sem_wait(&se);
 		printf("E \n");
 		sem_post(&sab);

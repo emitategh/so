@@ -9,11 +9,12 @@ void* tareaA(){
 	int cant = 0;
 	while(1){
 		if (cant == 20){
+			printf("A - ");
 			sem_post(&scerrar);
 			sem_post(&sa);
 			pthread_exit(0);
 		}	
-		printf("A\n");
+		printf("A - ");
 		sem_post(&sa);
 		sem_wait(&se);
 		cant++;
@@ -33,7 +34,7 @@ void* tareaB(){
 		}
 		/*Espero a que  termine el anterior*/
 		sem_wait(&sa);
-		printf("B\n");
+		printf("B - ");
 		sem_post(&sb);
 		
 	};	
@@ -50,7 +51,7 @@ void* tareaC(){
 		}
 		/*Espero a que  termine el anterior*/
 		sem_wait(&sb);
-		printf("C\n");
+		printf("C - ");
 		sem_post(&sc);
 		
 	};
@@ -67,7 +68,7 @@ void* tareaD(){
 		}
 		/*Espero a que  termine el anterior*/
 		sem_wait(&sc);
-		printf("D\n");
+		printf("D - ");
 		sem_post(&sd);
 		
 	};

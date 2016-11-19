@@ -9,7 +9,7 @@ void* cocineroA(){
 		
 		sem_wait(&scocinero);
 		sem_wait(&scocina);
-		for(int j=0;j<100;j++){
+		for(int j=0;j<3;j++){
 			sem_post(&sfuente);
 			printf("Cocinando: A\n");
 		};
@@ -22,7 +22,7 @@ void* cocineroB(){
 	while(1){
 		sem_wait(&scocinero);
 		sem_wait(&scocina);
-		for(int j=0;j<100;j++){
+		for(int j=0;j<3;j++){
 			sem_post(&sfuente);
 			printf("Cocinando: B\n");
 		};

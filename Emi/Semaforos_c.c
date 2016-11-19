@@ -12,13 +12,12 @@ void* tareaA(){
 
 		int close = sem_trywait(&scerrar);
 		if (close == 0){
-			printf("\nSaliendo de tareaA\n");
 			sem_post(&scerrar);	
 			sem_post(&sb);
 			pthread_exit(0);		
 		}
 
-		printf("A\n");
+		printf("A - ");
 
 		int repetir = sem_trywait(&srepetir);
 		if (repetir == 0){
@@ -50,13 +49,12 @@ void* tareaB(){
 
 		int close = sem_trywait(&scerrar);
 		if (close == 0){
-			printf("\nSaliendo de tareaB\n");
 			sem_post(&scerrar);
 			sem_post(&sc);
 			pthread_exit(0);		
 		}
 
-		printf("B \n");
+		printf("B - ");
 		sem_post(&sc);
 	};
 	
@@ -70,13 +68,12 @@ void* tareaC(){
 
 		int close = sem_trywait(&scerrar);
 		if (close == 0){
-			printf("\nSaliendo de tareaC\n");
 			sem_post(&scerrar);
 			sem_post(&sd);
 			pthread_exit(0);		
 		}
 
-		printf("C \n");
+		printf("C - ");
 		sem_post(&sd);
 		
 	};
@@ -90,13 +87,12 @@ void* tareaD(){
 
 		int close = sem_trywait(&scerrar);
 		if (close == 0){
-			printf("\nSaliendo de tareaD\n");
 			sem_post(&scerrar);	
 			sem_post(&sa);
 			pthread_exit(0);		
 		}
 		/*Espero a que  termine el anterior*/
-		printf("D \n");
+		printf("D - ");
 		sem_post(&se);
 
 
@@ -112,10 +108,8 @@ void* tareaE(){
 		sem_wait(&se);
 
 		printf("E \n");
-		printf("\n");
 		cant++;
-		if (cant == 20){
-			printf("\nSaliendo de tareaE\n");
+		if (cant == 10){
 			sem_post(&scerrar);
 			sem_post(&sa);
 			pthread_exit(0);

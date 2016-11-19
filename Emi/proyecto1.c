@@ -11,7 +11,7 @@ static int ** matrizResultado;
 
 //ayuda es un proceso que se ejecutara cuando el usuario necesito soporte
 void ayuda(){
-	printf("Me parece que te falto el argumento. El tamaño de la matriz\n");
+	printf("Falta el tamaño de la matriz como argumento.\n");
 }
 
 int ** construirMatriz(int n){
@@ -35,11 +35,9 @@ void inicializarMatriz(int** matriz, int n){
 	int * subindice;
 	int num = 0;
 	for(i=0; i<n;i++){
-		//printf("%i - %p\n",i, matriz[i]); 
 		for(j=0; j<n;j++){
 			indice = matriz[i];
 			subindice = indice+j;
-			//*subindice = rand() % 10;
 			*subindice = num++;
 		}
 	}
@@ -57,8 +55,6 @@ void mostrarMatriz(int** matriz,int n){
 		for(j=0; j<n;j++){
 			indice = matriz[i];
 			subindice = indice+j;
-			//printf("I:%i - J:%i - valor:%i\n",i,j, *(subindice));
-			//printf("Direccion:%p\n", (subindice));
 			printf(" %i ", *(subindice));
 		}
 		printf("\n");
@@ -69,7 +65,7 @@ void multiplicarMatriz(int** matrizA,int** matrizB, int** matrizResultado,int n)
 
 
 	printf("Multiplicar Matriz\n");
-	printf("%p\n", matrizResultado);
+	//printf("Direccion en memoria de la matrizResultado: %p\n", matrizResultado);
 	int i;
 	int j;
 	int * indiceA;
@@ -79,7 +75,7 @@ void multiplicarMatriz(int** matrizA,int** matrizB, int** matrizResultado,int n)
 	int * subindiceB;
 	int * subindiceR;
 	int pid = -1;
-	printf("Direccion de Resultado en el padre: %p\n",matrizResultado);
+	//printf("Direccion de Resultado en el padre: %p\n",matrizResultado);
 	for (i=0;i<n;i++){
 		
 		pid = fork();
@@ -101,9 +97,6 @@ void multiplicarMatriz(int** matrizA,int** matrizB, int** matrizResultado,int n)
 					*(subindiceR) += *subindiceA * (*subindiceB);
 					
 				}
-				//printf("subindiceA:%i * subindiceB:%i\n",*subindiceA,*subindiceB);
-				//printf("Multiplicacion: %i\n",*subindiceR);
-				//printf("Direccion Multiplicacion: %p\n",subindiceR);
 			}
 
 		exit(EXIT_SUCCESS);
@@ -114,10 +107,8 @@ void multiplicarMatriz(int** matrizA,int** matrizB, int** matrizResultado,int n)
 		int j = 0;
 		while(wait(NULL) > 0){
 			j++;
-			printf("Termino %i\n",j);	
+			printf("Termino el hijo%i\n",j);	
 		}
-			
-		printf("Me clavo esperando...\n");
 		//printf("Direccion de Resultado antes de mostrar: %p\n",matrizResultado);
 		mostrarMatriz(matrizResultado,n);
 	}
@@ -146,10 +137,9 @@ int main(int argc, char* argv[]){
 		inicializarMatriz(matrizB,n);
 		mostrarMatriz(matrizB,n);
 		
+		//Se reserva el espacio de memoria compartida para almacenar a la matrizResultado
 		matrizResultado = mmap(0,  n * sizeof(int*), PROT_READ | PROT_WRITE, 
                     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-
-		printf("%p\n", matrizResultado);
 
 		int i;
 		for(i=0; i<n;i++){
@@ -157,10 +147,8 @@ int main(int argc, char* argv[]){
                     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		}
 
-		//inicializarMatriz(matrizResultado,n);
 
 		printf("·················· RESULTADO ·······················\n");
-		//mostrarMatriz(matrizResultado,n);		
 		multiplicarMatriz(matrizA,matrizB,matrizResultado,n);
 	}
 }
