@@ -6,6 +6,8 @@
 #define OCUPADO 1 // Tiene uno de los hijos llenos
 #define LIBRE 2 // Ambos hijos libres
 #define SO *
+#define FRAG_INT 1
+#define FRAG_EXT 2
 
 time_t t;
 
@@ -34,13 +36,15 @@ void compacta_memoria();
 pmemoria crear_celda();
 int rand_range(int min_n, int max_n);
 void darRequerimientos(int n,memoria mem);
-
+int es_hoja();
+int calcular_fragmentacion();
+int calcular_fragmentacion();
 
 int main(){
 	printf("\nAlgoritmo Buddy, Proyecto 2\n");
 	pmemoria mem = (pmemoria) malloc(sizeof(struct memoria_celda));
 	int capacidad = 16348;
-	printf("\nCapacidad de memoria: %i\n", capacidad);
+	printf("\nCapacidad de memoria: %i KB\n", capacidad);
 	srand((unsigned)time(&t));
 
 	mem->size = capacidad;
@@ -55,18 +59,20 @@ int main(){
 
 	darRequerimientos(5,mem);
 
+	printf("Fragmentacion interna %i KB\n",calcular_fragmentacion(mem,FRAG_INT));
+	printf("Fragmentacion externa %i KB\n",calcular_fragmentacion(mem,FRAG_EXT));
+
 }
 
 //si soy mayor a la mitad de la locacion, la ocupo
 //sino divido y aksjd
 int insertar(pproc proceso,pmemoria locacion, int nivel){
-	printf("En insertar\n");
 	int tamanio_locacion = locacion->size;
 	int result = 0;
 
 	if (proceso->size < locacion->disponible){
 		// Soy hoja?
-		if (locacion->hijo_i == NULL && locacion->hijo_d == NULL){
+		if (es_hoja(locacion)){
 			if (locacion->estado == LIBRE){
 				if (proceso->size < tamanio_locacion/2){
 					printf("Divido nodo de tamaño %i e intento por izquierda a nivel %i\n",locacion->size, nivel+1);
@@ -78,6 +84,8 @@ int insertar(pproc proceso,pmemoria locacion, int nivel){
 						printf("No pude por izquierda, voy por derecha, a nivel %i\n",nivel +1);
 						result = insertar(proceso,locacion->hijo_d,nivel+1);
 					}
+
+
 					
 				}else{
 					locacion->elem = proceso;
@@ -88,7 +96,7 @@ int insertar(pproc proceso,pmemoria locacion, int nivel){
 							locacion->padre->estado = LLENO;
 						}
 					}
-					printf("Inserte proceso: %i, con size %i, en nodo de tamaño %i, en nivel %i\n",proceso->id,proceso->size,locacion->size, nivel);
+					printf("Inserte proceso: %i, con size %i KB, en nodo de tamaño %i KB, en nivel %i\n",proceso->id,proceso->size,locacion->size, nivel);
 					return 1;
 				}
 			}	
@@ -127,7 +135,7 @@ int insertar(pproc proceso,pmemoria locacion, int nivel){
 					}
 				}
 			}else{
-				printf("No se pudo insertar el proceso %i (size %i). ",proceso->id,proceso->size);
+				printf("No se pudo insertar el proceso %i (size %i KB). ",proceso->id,proceso->size);
 				printf("Tamaño disponible en celda: %i\n",tamanio_locacion/2);
 			}
 		}
@@ -141,13 +149,13 @@ int insertar(pproc proceso,pmemoria locacion, int nivel){
 
 		if (nivel == 0 && result == 1){
 			locacion->cantidad++;
-			locacion->disponible -= proceso->size;
+			//locacion->disponible -= proceso->size;
 		}
 
 	}else{
 		printf("Locacion con memoria insuficiente\n");
-		printf("Disponible %i\n",locacion->disponible);
-		printf("Requerido %i\n", proceso->size);
+		printf("Disponible %i KB\n",locacion->disponible);
+		printf("Requerido %i KB\n", proceso->size);
 	}
 	
 	return result;
@@ -158,7 +166,7 @@ int liberar(pproc proceso,pmemoria locacion,int nivel){
 	int tamanio_locacion = locacion->size;
 	int result = 0;
 	// Soy hoja?
-	if (locacion->hijo_i == NULL && locacion->hijo_d == NULL){
+	if (es_hoja(locacion)){
 		if (locacion->estado == OCUPADO){
 			if ((locacion->elem)->id == proceso->id){
 				printf("Encontre proceso %i en nivel %i, en lado ",proceso->id,nivel );
@@ -202,7 +210,7 @@ int liberar(pproc proceso,pmemoria locacion,int nivel){
 			
 		}
 
-		if (locacion->hijo_i != NULL && locacion->hijo_d != NULL){
+		if (es_hoja(locacion)){
 			
 			if ((locacion->hijo_i)->estado == LIBRE && (locacion->hijo_d)->estado == LIBRE){
 				printf("Encontre CELDA para compactar en nivel %i\n",nivel);
@@ -225,6 +233,33 @@ int liberar(pproc proceso,pmemoria locacion,int nivel){
 	}
 
 	return result;
+}
+
+int calcular_fragmentacion(pmemoria locacion, int tipo){
+	int fragmentacion = 0;
+		if (es_hoja(locacion)){
+			if  (locacion->estado == tipo){
+				int size_ocupado = 0;
+				if (locacion->elem != NULL){
+					size_ocupado = locacion->elem->size;
+				}
+
+				fragmentacion = locacion->size - size_ocupado;
+			}
+		}else{
+			fragmentacion += calcular_fragmentacion(locacion->hijo_i,tipo);
+			fragmentacion += calcular_fragmentacion(locacion->hijo_d,tipo);
+		}
+
+	return fragmentacion;
+}
+
+int es_hoja(pmemoria locacion){
+	if (locacion->hijo_d == NULL && locacion->hijo_i == NULL){
+		return 1;
+	}
+
+	return 0;
 }
 
 void compacta_memoria(pmemoria locacion){
@@ -281,7 +316,8 @@ void darRequerimientos(int n,memoria mem){
 				printf("Liberando proceso %i\n",pool_procesos[victima]->id);
 				if (liberar(pool_procesos[victima],mem,0)){
 					insertados--;
-					
+				}else{
+					printf("No se pudo liberar el proceso\n");
 				}
 			}
 		}
